@@ -3,6 +3,7 @@ package com.consiti.serviciofrancisco.service;
 import com.consiti.serviciofrancisco.entity.Account;
 import com.consiti.serviciofrancisco.repository.AccountRepository;
 import com.consiti.serviciofrancisco.security.entity.Customer;
+import com.consiti.serviciofrancisco.security.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,12 @@ import java.util.Optional;
 public class AccountService {
     @Autowired
     AccountRepository accountRepository;
+
+    @Autowired
+    CustomerService customerService;
+
+    @Autowired
+    SAuthenticatedCustomer sAuthenticatedCustomer;
 
     public void save(Account account){
         accountRepository.save(account);
@@ -45,10 +52,8 @@ public class AccountService {
     }
 
     public List<Account> list(){
-        return accountRepository.findAll();
-    }
-
-    public List<Account> findByCustomer(Customer customer){
+        String username = sAuthenticatedCustomer.getAuthentication().getName();
+        Customer customer = customerService.getByUsername(username).get();
         return accountRepository.findByCustomer(customer);
     }
 

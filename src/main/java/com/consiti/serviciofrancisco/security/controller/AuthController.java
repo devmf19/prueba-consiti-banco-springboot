@@ -1,4 +1,4 @@
-package com.consiti.serviciofrancisco.security;
+package com.consiti.serviciofrancisco.security.controller;
 
 import com.consiti.serviciofrancisco.dto.Message;
 import com.consiti.serviciofrancisco.security.dto.CustomerDto;
@@ -7,6 +7,7 @@ import com.consiti.serviciofrancisco.security.dto.LoginDto;
 import com.consiti.serviciofrancisco.security.entity.Customer;
 import com.consiti.serviciofrancisco.security.jwt.JwtProvider;
 import com.consiti.serviciofrancisco.security.service.CustomerService;
+import com.consiti.serviciofrancisco.service.SAuthenticatedCustomer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,35 +36,38 @@ public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
-    CustomerService userService;
+    CustomerService customerService;
     @Autowired
     JwtProvider jwtProvider;
 
+    //@Autowired
+    //SAuthenticatedCustomer sAuthenticatedCustomer;
+
     @PostMapping("")
-    public ResponseEntity<Message> signup (@Valid @RequestBody CustomerDto newUser, BindingResult bindingResult) {
+    public ResponseEntity<Message> signup (@Valid @RequestBody CustomerDto newCustomer, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<Message>(new Message("Verifique los datos introducidos"), HttpStatus.BAD_REQUEST);
         }
-        if (userService.existByUsername(newUser.getUsername())) {
+        if (customerService.existByUsername(newCustomer.getUsername())) {
             return new ResponseEntity<Message>(new Message("El nombre de usuario que ingresó ya se encuentra registrado"), HttpStatus.BAD_REQUEST);
         }
-        if (userService.existByDui(newUser.getDui())) {
+        if (customerService.existByDui(newCustomer.getDui())) {
             return new ResponseEntity<Message>(new Message("El dui que ingresó ya se encuentra registrado"), HttpStatus.BAD_REQUEST);
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate now = LocalDate.now();
-        newUser.setOpeningDate(Date.valueOf(now.format( formatter )));
+        newCustomer.setOpeningDate(Date.valueOf(now.format( formatter )));
 
         Customer customer = new Customer();
-        customer.setDui(newUser.getDui());
-        customer.setName(newUser.getName());
-        customer.setLastname(newUser.getLastname());
-        customer.setUsername(newUser.getUsername());
-        customer.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        customer.setOpeningDate(newUser.getOpeningDate());
+        customer.setDui(newCustomer.getDui());
+        customer.setName(newCustomer.getName());
+        customer.setLastname(newCustomer.getLastname());
+        customer.setUsername(newCustomer.getUsername());
+        customer.setPassword(passwordEncoder.encode(newCustomer.getPassword()));
+        customer.setOpeningDate(newCustomer.getOpeningDate());
 
-        userService.save(customer);
+        customerService.save(customer);
         return new ResponseEntity<Message>(new Message("Registro exitoso"), HttpStatus.CREATED);
     }
 
@@ -83,11 +87,14 @@ public class AuthController {
                 ));
 
         SecurityContextHolder.getContext().setAuthentication(auth);
+        //String aut = sAuthenticatedCustomer.getAuthentication().toString();
+        //String name = sAuthenticatedCustomer.getAuthentication().getName().toString();
+
 
         String jwt = jwtProvider.generateToken(auth);
         JwtDto token = new JwtDto(jwt);
 
-        Customer customer = userService.getByUsername(loginUser.getUsername()).get();
+        Customer customer = customerService.getByUsername(loginUser.getUsername()).get();
 
         HashMap<String, String> response = new HashMap<>();
         response.put("token", token.getToken());
@@ -95,6 +102,8 @@ public class AuthController {
         response.put("name", customer.getName());
         response.put("lastname", customer.getLastname());
         response.put("username", customer.getUsername());
+        //response.put("AUTHEN", aut);
+        //response.put("autName", name);
 
         return new ResponseEntity<Object>(response, HttpStatus.ACCEPTED);
     }
