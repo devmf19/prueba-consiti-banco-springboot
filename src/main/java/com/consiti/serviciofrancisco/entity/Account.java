@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import java.sql.Date;
-import java.util.Collection;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -36,10 +36,10 @@ public class Account {
     @NotNull
     private char state;
     @NotNull
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customerId")
+    @JsonBackReference
     private Customer customer;
-    @OneToMany(mappedBy = "account")
-    private Collection<Transaction> transaction;
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactions;
 }

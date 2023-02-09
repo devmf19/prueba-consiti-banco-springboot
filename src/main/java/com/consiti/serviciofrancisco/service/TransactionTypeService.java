@@ -19,7 +19,7 @@ public class TransactionTypeService {
     }
 
     public Optional<TransactionType> getOne(int id){
-        return transactionTypeRepository.findById(id);
+        return transactionTypeRepository.findByTtId(id);
     }
     public Optional<TransactionType> findByName(String name) {
         return  transactionTypeRepository.findByName(name);

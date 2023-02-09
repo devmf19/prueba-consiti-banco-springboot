@@ -1,12 +1,12 @@
 package com.consiti.serviciofrancisco.entity;
 
-import com.consiti.serviciofrancisco.enums.TransactionName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 @Data
@@ -18,6 +18,6 @@ public class TransactionType {
     private int ttId;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private TransactionName name;
+    private String name;
+
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -25,14 +26,14 @@ public class Transaction {
     private Date transactionDate;
 
     @NotNull
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ttId")
+    @JsonBackReference
     private TransactionType transactionType;
 
     @NotNull
-    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "accountId")
+    @JsonBackReference
     private Account account;
 }

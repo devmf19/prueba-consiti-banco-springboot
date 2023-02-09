@@ -1,6 +1,7 @@
 package com.consiti.serviciofrancisco.security.controller;
 
 import com.consiti.serviciofrancisco.dto.Message;
+import com.consiti.serviciofrancisco.security.entity.Customer;
 import com.consiti.serviciofrancisco.security.dto.CustomerDto;
 import com.consiti.serviciofrancisco.security.dto.JwtDto;
 import com.consiti.serviciofrancisco.security.dto.LoginDto;
@@ -25,6 +26,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -40,8 +42,11 @@ public class AuthController {
     @Autowired
     JwtProvider jwtProvider;
 
-    //@Autowired
-    //SAuthenticatedCustomer sAuthenticatedCustomer;
+    @GetMapping("")
+    public ResponseEntity<List<Customer>> findAll() {
+        List<Customer> list = customerService.findAll();
+        return new ResponseEntity<List<Customer>>(list, HttpStatus.OK);
+    }
 
     @PostMapping("")
     public ResponseEntity<Message> signup (@Valid @RequestBody CustomerDto newCustomer, BindingResult bindingResult) {
@@ -87,8 +92,6 @@ public class AuthController {
                 ));
 
         SecurityContextHolder.getContext().setAuthentication(auth);
-        //String aut = sAuthenticatedCustomer.getAuthentication().toString();
-        //String name = sAuthenticatedCustomer.getAuthentication().getName().toString();
 
 
         String jwt = jwtProvider.generateToken(auth);
@@ -102,8 +105,6 @@ public class AuthController {
         response.put("name", customer.getName());
         response.put("lastname", customer.getLastname());
         response.put("username", customer.getUsername());
-        //response.put("AUTHEN", aut);
-        //response.put("autName", name);
 
         return new ResponseEntity<Object>(response, HttpStatus.ACCEPTED);
     }

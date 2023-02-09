@@ -9,5 +9,8 @@ public class AccountDto {
     String name;
     @Min(0)
     private double openingAmount;
+    @Min(0)
+    private double balance;
     private String customerDui;
+    private char state;
 }

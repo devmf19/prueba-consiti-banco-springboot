@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface TransactionTypeRepository extends JpaRepository<TransactionType, Integer> {
     Optional<TransactionType> findByName(String name);
 
+    Optional<TransactionType> findByTtId(int id);
+
 }

@@ -40,7 +40,6 @@ public class Customer {
     @NotNull
     private Date openingDate;
 
-    @JsonManagedReference
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Account> accounts;
 }

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -23,50 +24,51 @@ public class AccountService {
     @Autowired
     SAuthenticatedCustomer sAuthenticatedCustomer;
 
-    public void save(Account account){
-        accountRepository.save(account);
+    public List<Account> list(){
+        String username = sAuthenticatedCustomer.getAuthentication().getName();
+        Customer customer = customerService.getByUsername(username).get();
+        List<Account> accounts = accountRepository.findByCustomer(customer);
+        return accounts;
     }
 
-    public boolean existById(int id){
-        return accountRepository.existsById(id);
+    public List<Account> getByName(String name){
+        List<Account> customerAccounts = list();
+        customerAccounts = customerAccounts.stream()
+                .filter(account -> account.getName().equalsIgnoreCase(name))
+                .collect(Collectors.toList());
+        return  customerAccounts;
+    }
+
+    public boolean existByName(String name){
+        List<Account> customerAccount = getByName(name);
+
+        if(!customerAccount.isEmpty()){
+            return true;
+        }
+        return  false;
+    }
+
+    public void deleteByName(String name){
+        List<Account> customerAccount = getByName(name);
+
+        if(!customerAccount.isEmpty()){
+            int id = customerAccount.get(0).getAccountId();
+            accountRepository.deleteById(id);
+        }
+    }
+
+    public boolean save(Account newAccount){
+        List<Account> customerAccount = getByName(newAccount.getName());
+
+        if(customerAccount.isEmpty()){
+            accountRepository.save(newAccount);
+            return true;
+        }
+        return false;
     }
 
     public boolean existByNumber(String number){
         return accountRepository.existsByNumber(number);
-    }
-
-    public boolean existByName(String name){
-        return accountRepository.existsByName(name);
-    }
-
-    public Optional<Account> getOne(int id){
-        return accountRepository.findById(id);
-    }
-
-    public Optional<Account> getByNumber(String number){
-        return  accountRepository.findByNumber(number);
-    }
-
-    public Optional<Account> getByName(String name){
-        return  accountRepository.findByName(name);
-    }
-
-    public List<Account> list(){
-        String username = sAuthenticatedCustomer.getAuthentication().getName();
-        Customer customer = customerService.getByUsername(username).get();
-        return accountRepository.findByCustomer(customer);
-    }
-
-    public void delete(int id){
-        accountRepository.deleteById(id);
-    }
-
-    public void deleteByName(String name){
-        accountRepository.deleteByName(name);
-    }
-
-    public void deleteByNumber(String number){
-        accountRepository.deleteByNumber(number);
     }
 
 
